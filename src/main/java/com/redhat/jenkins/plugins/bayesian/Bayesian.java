@@ -82,7 +82,7 @@ import hudson.FilePath;
         }
     }
 
-    private String getApiUrl() {
+    public String getApiUrl() {
         URIBuilder url;
         URI apiUrl = null;
         try {

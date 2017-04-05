@@ -81,6 +81,7 @@ public final class BayesianAnalysisStep extends Step {
             BayesianStepResponse response = null;
             try {
                 logger.println("Running Bayesian stack analysis...");
+                logger.println("Bayesian API URL is " + bayesian.getApiUrl());
                 response = bayesian.submitStackForAnalysis(manifests);
             } catch (Throwable e) {
                 // intentionally not failing the build here
