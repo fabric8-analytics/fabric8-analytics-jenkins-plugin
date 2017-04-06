@@ -25,7 +25,7 @@ import hudson.FilePath;
 
 /* package */ class Bayesian {
 
-    private static final String DEFAULT_BAYESIAN_URL = "http://recommender.api.prod-preview.openshift.io";
+    private static final String DEFAULT_BAYESIAN_URL = "https://recommender.api.prod-preview.openshift.io";
     private String url;
 
     public Bayesian() throws URISyntaxException {
