@@ -40,7 +40,11 @@ import hudson.FilePath;
             // TODO: there can be dots in short domain names as well
             List<String> cnames = DnsFiddler.getActualCNAME(host);
             if (!cnames.isEmpty()) {
-                uri = new URIBuilder(uri).setHost(cnames.get(0)).build();
+                String hostname = cnames.get(0);
+                if (hostname.endsWith(".")) {
+                    hostname = hostname.substring(0, hostname.length() - 1);
+                }
+                uri = new URIBuilder(uri).setHost(hostname).build();
             }
         }
         this.url = uri.toString();
