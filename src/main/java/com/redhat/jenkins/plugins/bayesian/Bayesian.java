@@ -46,6 +46,7 @@ import hudson.FilePath;
                 }
                 uri = new URIBuilder(uri).setHost(hostname).build();
             }
+            cnames = null;
         }
         this.url = uri.toString();
     }
@@ -56,18 +57,23 @@ import hudson.FilePath;
 
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         for (FilePath manifest : manifests) {
+            byte[] content = null;
             try (InputStream in = manifest.read()) {
-                byte[] content = ByteStreams.toByteArray(in);
+                content = ByteStreams.toByteArray(in);
                 builder.addBinaryBody("manifest[]", content, ContentType.DEFAULT_BINARY, manifest.getName());
             } catch (IOException | InterruptedException e) {
                 throw new BayesianException(e);
+            } finally {
+                content = null;
             }
         }
         HttpEntity multipart = builder.build();
+        builder = null;
         httpPost.setEntity(multipart);
 
-        try (CloseableHttpClient client = HttpClients.createDefault();) {
-            CloseableHttpResponse response = client.execute(httpPost);
+        ObjectMapper mapper = null;
+        BayesianResponse responseObj = null;
+        try (CloseableHttpClient client = HttpClients.createDefault(); CloseableHttpResponse response = client.execute(httpPost)) {
             HttpEntity entity = response.getEntity();
             String responseContent = entity != null ? EntityUtils.toString(entity) : null;
             // Yeah, the endpoint actually returns 200 from some reason;
@@ -76,13 +82,19 @@ import hudson.FilePath;
                 throw new BayesianException("Bayesian error: " + responseContent);
             }
 
-            ObjectMapper mapper = new ObjectMapper();
-            BayesianResponse responseObj = mapper.readValue(responseContent, BayesianResponse.class);
-
+            mapper = new ObjectMapper();
+            responseObj = mapper.readValue(responseContent, BayesianResponse.class);
             String analysisUrl = stackAnalysesUrl + "/" + responseObj.getId();
-            return new BayesianStepResponse(responseObj.getId(), responseContent, analysisUrl, true);
+            BayesianStepResponse bayesianStepResponse = new BayesianStepResponse(responseObj.getId(), "", analysisUrl, true);
+            return bayesianStepResponse;
         } catch (IOException e) {
             throw new BayesianException("Bayesian error", e);
+        } finally {
+            // just to be sure...
+            mapper = null;
+            responseObj = null;
+            httpPost = null;
+            multipart = null;
         }
     }
 

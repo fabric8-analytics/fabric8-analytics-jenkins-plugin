@@ -85,10 +85,13 @@ public final class BayesianAnalysisStep extends Step {
                 response = bayesian.submitStackForAnalysis(manifests);
             } catch (Throwable e) {
                 // intentionally not failing the build here
-              StringWriter sw = new StringWriter();
-              PrintWriter pw = new PrintWriter(sw);
-              e.printStackTrace(pw);
-              logger.println(sw.toString());
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                e.printStackTrace(pw);
+                logger.println(sw.toString());
+            } finally {
+                // just to make sure
+                bayesian = null;
             }
 
             if (response == null) {
