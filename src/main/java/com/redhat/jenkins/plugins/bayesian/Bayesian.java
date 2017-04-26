@@ -77,6 +77,7 @@ import hudson.FilePath;
         httpPost.setHeader("Authorization", "Bearer " + getAuthToken());
 
         BayesianResponse responseObj = null;
+        Gson gson;
         try (CloseableHttpClient client = HttpClients.createDefault(); CloseableHttpResponse response = client.execute(httpPost)) {
             HttpEntity entity = response.getEntity();
             // Yeah, the endpoint actually returns 200 from some reason;
@@ -87,7 +88,7 @@ import hudson.FilePath;
 
             Charset charset = ContentType.get(entity).getCharset();
             try (InputStream is = entity.getContent(); Reader reader = new InputStreamReader(is, charset != null ? charset : HTTP.DEF_CONTENT_CHARSET)) {
-                Gson gson = new GsonBuilder().create();
+                gson = new GsonBuilder().create();
                 responseObj = gson.fromJson(reader, BayesianResponse.class);
                 String analysisUrl = stackAnalysesUrl + "/" + responseObj.getId();
                 return new BayesianStepResponse(responseObj.getId(), "", analysisUrl, true);
@@ -99,6 +100,7 @@ import hudson.FilePath;
             responseObj = null;
             httpPost = null;
             multipart = null;
+            gson = null;
         }
     }
 
