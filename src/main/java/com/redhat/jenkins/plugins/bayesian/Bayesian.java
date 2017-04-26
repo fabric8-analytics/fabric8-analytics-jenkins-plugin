@@ -29,7 +29,7 @@ import hudson.FilePath;
 
 /* package */ class Bayesian {
 
-    private static final String DEFAULT_BAYESIAN_URL = "https://recommender.api.prod-preview.openshift.io";
+    private static final String DEFAULT_BAYESIAN_URL = "https://recommender.api.openshift.io/api/v1";
     private String url;
 
     public Bayesian() throws URISyntaxException {
@@ -74,6 +74,7 @@ import hudson.FilePath;
         HttpEntity multipart = builder.build();
         builder = null;
         httpPost.setEntity(multipart);
+        httpPost.setHeader("Authorization", "Bearer " + getAuthToken());
 
         BayesianResponse responseObj = null;
         try (CloseableHttpClient client = HttpClients.createDefault(); CloseableHttpResponse response = client.execute(httpPost)) {
@@ -123,5 +124,9 @@ import hudson.FilePath;
 
     public static String getDefaultUrl() {
         return DEFAULT_BAYESIAN_URL;
+    }
+
+    private String getAuthToken() {
+        return System.getProperty("RECOMMENDER_API_TOKEN", "token-not-available-in-pipelines");
     }
 }
