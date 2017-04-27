@@ -129,6 +129,7 @@ import hudson.FilePath;
     }
 
     private String getAuthToken() {
-        return System.getProperty("RECOMMENDER_API_TOKEN", "token-not-available-in-pipelines");
+        String token = System.getenv("RECOMMENDER_API_TOKEN");
+        return (token != null) ? token : "token-not-available-in-pipelines";
     }
 }
