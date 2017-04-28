@@ -1,8 +1,9 @@
-# fabric8-analytics Jenkins plugin
+# Fabric8-Analytics Jenkins plugin
 
 A very simple Jenkins plugin which can automatically submit supported manifest files
 to fabric8-analytics for analysis.
 
+*Note on naming: The Fabric8-Analytics project has evolved from 2 different projects called "cucos" and "bayesian". We're currently in process of renaming the modules and updating documentation. Until that is completed, please consider "cucos" and "bayesian" to be synonyms of "Fabric8-Analytics".*
 
 ## Configuration
 
