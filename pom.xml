@@ -10,8 +10,12 @@
   </parent>
 
   <groupId>com.redhat.jenkins.plugins</groupId>
+  <!-- TODO:
+       - rename to fabric8-analytics
+       - rename the pipeline step
+  -->
   <artifactId>bayesian</artifactId>
-  <version>0.2.4</version>
+  <version>0.2.5-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
   <properties>
@@ -22,8 +26,8 @@
   </properties>
 
   <name>Bayesian Plugin</name>
-  <description>This plugin allows you to analyze your project with the Bayesian</description>
-  <url>https://gitlab.cee.redhat.com/bayesian/jenkins-plugin</url>
+  <description>This plugin allows you to analyze your project with fabric8-analytics</description>
+  <url>https://github.com/fabric8-analytics/jenkins-plugin</url>
 
   <dependencies>
     <dependency>
