@@ -41,11 +41,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import hudson.FilePath;
-
+import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
 
 /* package */ class Bayesian {
 
-    private static final String DEFAULT_BAYESIAN_URL = "https://recommender.api.openshift.io/api/v1";
+    private static final String DEFAULT_BAYESIAN_URL = "https://recommender.api.openshift.io/";
     private String url;
 
     public Bayesian() throws URISyntaxException {
