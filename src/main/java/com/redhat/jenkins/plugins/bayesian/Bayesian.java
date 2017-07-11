@@ -81,6 +81,7 @@ import hudson.FilePath;
             try (InputStream in = manifest.read()) {
                 content = ByteStreams.toByteArray(in);
                 builder.addBinaryBody("manifest[]", content, ContentType.DEFAULT_BINARY, manifest.getName());
+                builder.addTextBody("filePath[]", manifest.getRemote(), ContentType.TEXT_PLAIN);
             } catch (IOException | InterruptedException e) {
                 throw new BayesianException(e);
             } finally {

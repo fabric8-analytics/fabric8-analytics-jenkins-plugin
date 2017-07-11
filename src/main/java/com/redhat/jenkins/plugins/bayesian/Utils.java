@@ -51,16 +51,12 @@ import hudson.FilePath;
             }
 
             FilePath childPomDirsPath = workspace.child("target/stackinfo/poms");
-            try {
-                childPomDirs = childPomDirsPath.listDirectories();
-                for (FilePath childPomDir : childPomDirs) {
-                    FilePath childPom = childPomDir.child("pom.xml");
-                    if (manifestExists(childPom)) {
-                        manifests.add(childPom);
-                    }
+            childPomDirs = getSubdirs(childPomDirsPath);
+            for (FilePath childPomDir : childPomDirs) {
+                FilePath childPom = childPomDir.child("pom.xml");
+                if (manifestExists(childPom)) {
+                    manifests.add(childPom);
                 }
-            } catch (IOException | InterruptedException e) {
-                // TODO log
             }
         }
 
@@ -92,5 +88,21 @@ import hudson.FilePath;
             // TODO log
         }
         return false;
+    }
+
+    private static List<FilePath> getSubdirs(FilePath file) {
+        List<FilePath> subdirs = new ArrayList<FilePath>();
+        try {
+            subdirs = file.listDirectories();
+        } catch (IOException | InterruptedException e) {
+            // TODO log
+        }
+
+        List<FilePath> deepSubdirs = new ArrayList<FilePath>();
+        for (FilePath subdir : subdirs) {
+            deepSubdirs.addAll(getSubdirs(subdir));
+        }
+        subdirs.addAll(deepSubdirs);
+        return subdirs;
     }
 }
