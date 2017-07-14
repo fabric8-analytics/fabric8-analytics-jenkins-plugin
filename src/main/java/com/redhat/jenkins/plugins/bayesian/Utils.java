@@ -19,7 +19,6 @@ package com.redhat.jenkins.plugins.bayesian;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import hudson.FilePath;
 
 /* package */ class Utils {
@@ -45,10 +44,18 @@ import hudson.FilePath;
         // Maven
         List<FilePath> mavenManifests = findManifestsFromList(workspace, knownMavenManifests);
         if (!mavenManifests.isEmpty()) {
-            // TODO: get all poms
-            FilePath pom = workspace.child("target/stackinfo/poms/pom.xml");
-            if (manifestExists(pom)) {
-                manifests.add(pom);
+            FilePath rootPom = workspace.child("target/stackinfo/poms/pom.xml");
+            if (manifestExists(rootPom)) {
+                manifests.add(rootPom);
+            }
+
+            FilePath childPomDirsPath = workspace.child("target/stackinfo/poms");
+            List<FilePath> childPomDirs = getSubdirs(childPomDirsPath);
+            for (FilePath childPomDir : childPomDirs) {
+                FilePath childPom = childPomDir.child("pom.xml");
+                if (manifestExists(childPom)) {
+                    manifests.add(childPom);
+                }
             }
         }
 
@@ -62,7 +69,7 @@ import hudson.FilePath;
     private static List<FilePath> findManifestsFromList(FilePath workspace, List<String> manifests) {
         List<FilePath> result = new ArrayList<FilePath>();
 
-        for (String manifest: manifests) {
+        for (String manifest : manifests) {
             FilePath manifestFile = workspace.child(manifest);
             if (manifestExists(manifestFile)) {
                 result.add(manifestFile);
@@ -80,5 +87,21 @@ import hudson.FilePath;
             // TODO log
         }
         return false;
+    }
+
+    private static List<FilePath> getSubdirs(FilePath file) {
+        List<FilePath> subdirs = new ArrayList<FilePath>();
+        try {
+            subdirs = file.listDirectories();
+        } catch (IOException | InterruptedException e) {
+            // TODO log
+        }
+
+        List<FilePath> deepSubdirs = new ArrayList<FilePath>();
+        for (FilePath subdir : subdirs) {
+            deepSubdirs.addAll(getSubdirs(subdir));
+        }
+        subdirs.addAll(deepSubdirs);
+        return subdirs;
     }
 }
