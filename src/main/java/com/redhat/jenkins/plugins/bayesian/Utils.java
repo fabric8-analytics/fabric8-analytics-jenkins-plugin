@@ -44,14 +44,13 @@ import hudson.FilePath;
         // Maven
         List<FilePath> mavenManifests = findManifestsFromList(workspace, knownMavenManifests);
         if (!mavenManifests.isEmpty()) {
-            List<FilePath> childPomDirs = new ArrayList<FilePath>();
             FilePath rootPom = workspace.child("target/stackinfo/poms/pom.xml");
             if (manifestExists(rootPom)) {
                 manifests.add(rootPom);
             }
 
             FilePath childPomDirsPath = workspace.child("target/stackinfo/poms");
-            childPomDirs = getSubdirs(childPomDirsPath);
+            List<FilePath> childPomDirs = getSubdirs(childPomDirsPath);
             for (FilePath childPomDir : childPomDirs) {
                 FilePath childPom = childPomDir.child("pom.xml");
                 if (manifestExists(childPom)) {
