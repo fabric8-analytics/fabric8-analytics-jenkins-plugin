@@ -9,3 +9,6 @@ work/
 .classpath
 .settings/
 
+# VS Code
+.vscode
+

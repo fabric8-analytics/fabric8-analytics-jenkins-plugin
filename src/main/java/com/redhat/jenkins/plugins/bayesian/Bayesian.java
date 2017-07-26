@@ -81,7 +81,10 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
             try (InputStream in = manifest.read()) {
                 content = ByteStreams.toByteArray(in);
                 builder.addBinaryBody("manifest[]", content, ContentType.DEFAULT_BINARY, manifest.getName());
-                builder.addTextBody("filePath[]", manifest.getRemote(), ContentType.TEXT_PLAIN);
+                String filePath = manifest.getRemote();
+                String[] filePathStrs = filePath.split("stackinfo/poms/");
+                String manifestFilePath = filePathStrs[1];
+                builder.addTextBody("filePath[]", manifestFilePath, ContentType.TEXT_PLAIN);
             } catch (IOException | InterruptedException e) {
                 throw new BayesianException(e);
             } finally {
@@ -95,7 +98,8 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
 
         BayesianResponse responseObj = null;
         Gson gson;
-        try (CloseableHttpClient client = HttpClients.createDefault(); CloseableHttpResponse response = client.execute(httpPost)) {
+        try (CloseableHttpClient client = HttpClients.createDefault();
+                CloseableHttpResponse response = client.execute(httpPost)) {
             HttpEntity entity = response.getEntity();
             // Yeah, the endpoint actually returns 200 from some reason;
             // I wonder what happened to the good old-fashioned 202 :)
@@ -104,7 +108,8 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
             }
 
             Charset charset = ContentType.get(entity).getCharset();
-            try (InputStream is = entity.getContent(); Reader reader = new InputStreamReader(is, charset != null ? charset : HTTP.DEF_CONTENT_CHARSET)) {
+            try (InputStream is = entity.getContent();
+                    Reader reader = new InputStreamReader(is, charset != null ? charset : HTTP.DEF_CONTENT_CHARSET)) {
                 gson = new GsonBuilder().create();
                 responseObj = gson.fromJson(reader, BayesianResponse.class);
                 String analysisUrl = stackAnalysesUrl + "/" + responseObj.getId();
