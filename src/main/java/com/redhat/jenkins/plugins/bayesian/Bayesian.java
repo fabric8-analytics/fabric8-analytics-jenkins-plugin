@@ -82,7 +82,7 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
                 content = ByteStreams.toByteArray(in);
                 builder.addBinaryBody("manifest[]", content, ContentType.DEFAULT_BINARY, manifest.getName());
                 String filePath = manifest.getRemote();
-                if (filePath.contains("pom.xml")){
+                if (filePath.endsWith("pom.xml")){
                     String[] filePathStrs = filePath.split("stackinfo/poms/");
                     filePath = filePathStrs[1];
                 }
