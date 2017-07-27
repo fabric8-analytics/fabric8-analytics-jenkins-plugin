@@ -46,7 +46,6 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
 /* package */ class Bayesian {
 
     private static final String DEFAULT_BAYESIAN_URL = "https://recommender.api.openshift.io/";
-    private String url;
 
     public Bayesian() throws URISyntaxException {
         this(DEFAULT_BAYESIAN_URL);
@@ -82,9 +81,11 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
                 content = ByteStreams.toByteArray(in);
                 builder.addBinaryBody("manifest[]", content, ContentType.DEFAULT_BINARY, manifest.getName());
                 String filePath = manifest.getRemote();
-                String[] filePathStrs = filePath.split("stackinfo/poms/");
-                String manifestFilePath = filePathStrs[1];
-                builder.addTextBody("filePath[]", manifestFilePath, ContentType.TEXT_PLAIN);
+                if (filePath.contains("pom.xml")){
+                    String[] filePathStrs = filePath.split("stackinfo/poms/");
+                    filePath = filePathStrs[1];
+                }
+                builder.addTextBody("filePath[]", filePath, ContentType.TEXT_PLAIN);
             } catch (IOException | InterruptedException e) {
                 throw new BayesianException(e);
             } finally {
