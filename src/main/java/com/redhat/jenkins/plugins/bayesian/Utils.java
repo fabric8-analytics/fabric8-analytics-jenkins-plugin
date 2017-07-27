@@ -32,6 +32,13 @@ import hudson.FilePath;
     };
 
     @SuppressWarnings("serial")
+    private static List<String> knownPythonManifests = new ArrayList<String>() {
+        {
+            add("requirements.txt");
+        }
+    };
+
+    @SuppressWarnings("serial")
     private static List<String> knownMavenManifests = new ArrayList<String>() {
         {
             add("pom.xml");
@@ -62,6 +69,10 @@ import hudson.FilePath;
         // NPM
         List<FilePath> npmManifests = findManifestsFromList(workspace, knownNpmManifests);
         manifests.addAll(npmManifests);
+
+        // Python
+        List<FilePath> pythonManifests = findManifestsFromList(workspace, knownPythonManifests);
+        manifests.addAll(pythonManifests);
 
         return manifests;
     }
