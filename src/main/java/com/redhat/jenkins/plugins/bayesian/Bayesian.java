@@ -1,5 +1,7 @@
 package com.redhat.jenkins.plugins.bayesian;
 
+import java.io.BufferedReader;
+
 /*
  * Copyright 2017 Red Hat, Inc.
  *
@@ -29,12 +31,14 @@ import java.util.List;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HTTP;
+
 
 import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
@@ -46,6 +50,8 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
 /* package */ class Bayesian {
 
     private static final String DEFAULT_BAYESIAN_URL = "https://recommender.api.openshift.io/";
+    private static final String OSIO_USERS_URL = "https://api.openshift.io/api/users";
+    private static final String DEFAULT_OSIO_USERS_FILTER = "username";
     private String url;
 
     public Bayesian() throws URISyntaxException {
@@ -97,6 +103,7 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
         builder = null;
         httpPost.setEntity(multipart);
         httpPost.setHeader("Authorization", "Bearer " + getAuthToken());
+        httpPost.setHeader("UserEmail", getEmail());
 
         BayesianResponse responseObj = null;
         Gson gson;
@@ -140,6 +147,68 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
         return apiUrl.toString();
     }
 
+    public String getEmail() throws BayesianException{
+        
+        
+        String url = getOSIOUserUrl();
+        
+        if(url.equals("No-Filter-Found")) {
+        	return "No-Email-Found";
+        }
+        
+        Gson gson;
+        User responseObj;
+
+        HttpGet httpGet = new HttpGet(url);
+        try (CloseableHttpClient client = HttpClients.createDefault();
+                CloseableHttpResponse response = client.execute(httpGet)) {
+
+	            HttpEntity entity = response.getEntity();
+	          	InputStream is = entity.getContent();
+	            BufferedReader br = null;
+         		StringBuilder sb = new StringBuilder();
+         		String line;
+         		br = new BufferedReader(new InputStreamReader(is));
+         		
+    			while ((line = br.readLine()) != null) {
+    				sb.append(line);
+    			}
+            	 
+                gson = new GsonBuilder().create();
+                 
+                responseObj = gson.fromJson(sb.toString(), User.class);
+                
+                if(responseObj.getData() == null ||
+                	responseObj.getData().isEmpty() ||
+                	responseObj.getData().get(0) == null ||
+                	responseObj.getData().get(0).getAttributes() == null ||
+                	responseObj.getData().get(0).getAttributes().getEmail() == null
+                	) {
+                	
+                	return "No-Email-Found";
+                }
+                
+            	return responseObj.getData().get(0).getAttributes().getEmail();
+
+        } catch (IOException e) {
+            throw new BayesianException("Bayesian error", e);
+        } finally {
+            responseObj = null;
+            httpGet = null;
+            gson = null;
+        }
+    }
+
+    public String getOSIOUserUrl() {
+    	
+    	String filterData = getFilteringData();        
+        if(filterData.equals("Data-Not-Found")) {
+        	return "No-Filter-Found";
+        }
+        
+        return getOSIOUrl() + "?filter[" + getFilter() + "]=" + filterData;
+    }
+
     public String getUrl() {
         return url;
     }
@@ -151,9 +220,22 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
     public static String getDefaultUrl() {
         return DEFAULT_BAYESIAN_URL;
     }
+    
+    public static String getOSIOUrl() {
+        return OSIO_USERS_URL;
+    }
+    
+    public static String getFilter() {
+        return DEFAULT_OSIO_USERS_FILTER;
+    }    
 
     private String getAuthToken() {
         String token = System.getenv("RECOMMENDER_API_TOKEN");
         return (token != null) ? token : "token-not-available-in-pipelines";
+    }
+    
+    private String getFilteringData() {
+        String token = System.getenv("PROJECT_NAMESPACE");
+        return (token != null) ? token : "Data-Not-Found";
     }
 }
