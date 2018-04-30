@@ -63,14 +63,4 @@ public class User {
 		}
 		
 	}
-
-	public static void main(String[] args) {
-		
-		System.out.println("Hello");
-		try {
-		System.out.println("Hello:" + new Bayesian().getEmail() );
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 }
