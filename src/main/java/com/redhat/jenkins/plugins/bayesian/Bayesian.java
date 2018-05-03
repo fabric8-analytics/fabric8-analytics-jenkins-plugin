@@ -50,7 +50,7 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
 /* package */ class Bayesian {
 
     private static final String DEFAULT_BAYESIAN_URL = "https://recommender.api.openshift.io/";
-    private static final String OSIO_USERS_URL = "https://api.openshift.io/api/users";
+    private static final String DEFAULT_OSIO_USERS_URL = "https://api.openshift.io/api/users";
     private static final String DEFAULT_OSIO_USERS_FILTER = "username";
     private String url;
 
@@ -158,37 +158,40 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
         
         Gson gson;
         User responseObj;
+        InputStream is = null;
+        BufferedReader br = null;
 
         HttpGet httpGet = new HttpGet(url);
         try (CloseableHttpClient client = HttpClients.createDefault();
                 CloseableHttpResponse response = client.execute(httpGet)) {
+    
+        	    HttpEntity entity = response.getEntity();
+                is = entity.getContent();
+                
+                StringBuilder sb = new StringBuilder();
+                String line;
+                br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
 
-	            HttpEntity entity = response.getEntity();
-	          	InputStream is = entity.getContent();
-	            BufferedReader br = null;
-         		StringBuilder sb = new StringBuilder();
-         		String line;
-         		br = new BufferedReader(new InputStreamReader(is));
-         		
-    			while ((line = br.readLine()) != null) {
-    				sb.append(line);
-    			}
-            	 
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+
                 gson = new GsonBuilder().create();
                  
                 responseObj = gson.fromJson(sb.toString(), User.class);
                 
+                
                 if(responseObj.getData() == null ||
-                	responseObj.getData().isEmpty() ||
-                	responseObj.getData().get(0) == null ||
-                	responseObj.getData().get(0).getAttributes() == null ||
+                    responseObj.getData().isEmpty() ||
+                    responseObj.getData().get(0) == null ||
+                    responseObj.getData().get(0).getAttributes() == null ||
                 	responseObj.getData().get(0).getAttributes().getEmail() == null
-                	) {
+                    ) {
                 	
-                	return "No-Email-Found";
+                        return "No-Email-Found";
                 }
                 
-            	return responseObj.getData().get(0).getAttributes().getEmail();
+                return responseObj.getData().get(0).getAttributes().getEmail();
 
         } catch (IOException e) {
             throw new BayesianException("Bayesian error", e);
@@ -196,6 +199,18 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
             responseObj = null;
             httpGet = null;
             gson = null;
+            try {
+              if (is != null) {
+                is.close();
+              }
+              
+              if (br != null) {
+                br.close();
+              }
+              
+            }catch (IOException e) {
+                throw new BayesianException("Bayesian error", e);
+            }
         }
     }
 
@@ -222,11 +237,13 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
     }
     
     public static String getOSIOUrl() {
-        return OSIO_USERS_URL;
+        String url = System.getenv("OSIO_USERS_URL");
+        return (url != null) ? url : DEFAULT_OSIO_USERS_URL;
     }
     
     public static String getFilter() {
-        return DEFAULT_OSIO_USERS_FILTER;
+        String filter = System.getenv("OSIO_USERS_FILTER");
+        return (filter != null) ? filter : DEFAULT_OSIO_USERS_FILTER;
     }    
 
     private String getAuthToken() {
@@ -235,7 +252,7 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
     }
     
     private String getFilteringData() {
-        String token = System.getenv("PROJECT_NAMESPACE");
-        return (token != null) ? token : "Data-Not-Found";
-    }
+        String nameSpace = System.getenv("PROJECT_NAMESPACE");
+        return (nameSpace != null) ? nameSpace : "Data-Not-Found";
+    }   
 }
