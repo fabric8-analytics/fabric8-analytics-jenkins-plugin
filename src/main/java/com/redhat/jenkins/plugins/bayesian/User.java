@@ -5,9 +5,9 @@ import java.util.List;
 
 
 public class User {
-	
+
     List <Data> data;
-	
+
     public List<Data> getData() {
         return data;
     }
@@ -25,8 +25,8 @@ public class User {
 
         public void setEmail(String email) {
             this.email = email;
-        }			
-	
+        }
+
     }
     
     static class Data{
@@ -38,12 +38,12 @@ public class User {
 
         public void setAttributes(Attributes attributes) {
             this.attributes = attributes;
-        }	
+        }
 
         public String toString()
         {
             return getAttributes().getEmail();
         }
-	
+
     }
 }

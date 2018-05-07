@@ -148,12 +148,12 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
     }
 
     public String getEmail() throws BayesianException{
-        
+
         
         String url = getOSIOUserUrl();
         
         if(url.equals("No-Filter-Found")) {
-        	return "No-Email-Found";
+            return "No-Email-Found";
         }
         
         Gson gson;
@@ -164,8 +164,8 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
         HttpGet httpGet = new HttpGet(url);
         try (CloseableHttpClient client = HttpClients.createDefault();
                 CloseableHttpResponse response = client.execute(httpGet)) {
-    
-        	    HttpEntity entity = response.getEntity();
+
+                HttpEntity entity = response.getEntity();
                 is = entity.getContent();
                 
                 StringBuilder sb = new StringBuilder();
@@ -185,9 +185,9 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
                     responseObj.getData().isEmpty() ||
                     responseObj.getData().get(0) == null ||
                     responseObj.getData().get(0).getAttributes() == null ||
-                	responseObj.getData().get(0).getAttributes().getEmail() == null
+                    responseObj.getData().get(0).getAttributes().getEmail() == null
                     ) {
-                	
+
                         return "No-Email-Found";
                 }
                 
@@ -215,10 +215,9 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
     }
 
     public String getOSIOUserUrl() {
-    	
-    	String filterData = getFilteringData();        
+        String filterData = getFilteringData();        
         if(filterData.equals("Data-Not-Found")) {
-        	return "No-Filter-Found";
+            return "No-Filter-Found";
         }
         
         return getOSIOUrl() + "?filter[" + getFilter() + "]=" + filterData;
@@ -240,19 +239,19 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
         String url = System.getenv("OSIO_USERS_URL");
         return (url != null) ? url : DEFAULT_OSIO_USERS_URL;
     }
-    
+
     public static String getFilter() {
         String filter = System.getenv("OSIO_USERS_FILTER");
         return (filter != null) ? filter : DEFAULT_OSIO_USERS_FILTER;
-    }    
+    }
 
     private String getAuthToken() {
         String token = System.getenv("RECOMMENDER_API_TOKEN");
         return (token != null) ? token : "token-not-available-in-pipelines";
     }
-    
+
     private String getFilteringData() {
         String nameSpace = System.getenv("PROJECT_NAMESPACE");
         return (nameSpace != null) ? nameSpace : "Data-Not-Found";
-    }   
+    }
 }
