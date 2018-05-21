@@ -43,7 +43,7 @@
 
   <name>Bayesian Plugin</name>
   <description>This plugin allows you to analyze your project with fabric8-analytics</description>
-  <url>https://github.com/fabric8-analytics/jenkins-plugin</url>
+  <url>https://github.com/fabric8-analytics/fabric8-analytics-jenkins-plugin</url>
 
   <dependencies>
     <dependency>
@@ -147,7 +147,7 @@
 
   <developers>
     <developer>
-      <id>msrb</id>
+      <id>michal</id>
       <name>Michal Srb</name>
       <email>michal@redhat.com</email>
     </developer>
@@ -155,16 +155,16 @@
 
   <licenses>
     <license>
-      <name>Apache-2.0</name>
+      <name>Apache 2.0</name>
       <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
 
   <scm>
-    <connection>scm:git:ssh://github.com/jenkinsci/MYPLUGINNAME.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/jenkinsci/MYPLUGINNAME.git</developerConnection>
-    <url>https://github.com/jenkinsci/MYPLUGINNAME</url>
+    <connection>scm:git:ssh://github.com/fabric8-analytics/fabric8-analytics-jenkins-plugin.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/fabric8-analytics/fabric8-analytics-jenkins-plugin.git</developerConnection>
+    <url>https://github.com/fabric8-analytics/fabric8-analytics-jenkins-plugin</url>
   </scm>
 
   <repositories>
