@@ -158,29 +158,20 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
         
         Gson gson;
         User responseObj;
-        InputStream is = null;
-        BufferedReader br = null;
 
         HttpGet httpGet = new HttpGet(url);
         try (CloseableHttpClient client = HttpClients.createDefault();
                 CloseableHttpResponse response = client.execute(httpGet)) {
 
                 HttpEntity entity = response.getEntity();
-                is = entity.getContent();
-                
-                StringBuilder sb = new StringBuilder();
-                String line;
-                br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-
-                while ((line = br.readLine()) != null) {
-                    sb.append(line);
-                }
+                Charset charset = ContentType.get(entity).getCharset();
+                try (InputStream is = entity.getContent();
+                        Reader reader = new InputStreamReader(is, charset != null ? charset : HTTP.DEF_CONTENT_CHARSET)) {
 
                 gson = new GsonBuilder().create();
-                 
-                responseObj = gson.fromJson(sb.toString(), User.class);
-                
-                
+
+                responseObj = gson.fromJson(reader, User.class);
+
                 if(responseObj.getData() == null ||
                     responseObj.getData().isEmpty() ||
                     responseObj.getData().get(0) == null ||
@@ -190,27 +181,12 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
 
                         return "No-Email-Found";
                 }
-                
+
                 return responseObj.getData().get(0).getAttributes().getEmail();
+            }
 
         } catch (IOException e) {
             throw new BayesianException("Bayesian error", e);
-        } finally {
-            responseObj = null;
-            httpGet = null;
-            gson = null;
-            try {
-              if (is != null) {
-                is.close();
-              }
-              
-              if (br != null) {
-                br.close();
-              }
-              
-            }catch (IOException e) {
-                throw new BayesianException("Bayesian error", e);
-            }
         }
     }
 

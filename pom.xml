@@ -38,12 +38,12 @@
     <jenkins.version>2.7.1</jenkins.version>
     <java.level>7</java.level>
     <jenkins-test-harness.version>2.13</jenkins-test-harness.version>
-    <workflow.version>2.8</workflow.version>
+    <workflow.version>2.11</workflow.version>
   </properties>
 
   <name>Bayesian Plugin</name>
   <description>This plugin allows you to analyze your project with fabric8-analytics</description>
-  <url>https://github.com/fabric8-analytics/jenkins-plugin</url>
+  <url>https://github.com/fabric8-analytics/fabric8-analytics-jenkins-plugin</url>
 
   <dependencies>
     <dependency>
@@ -78,11 +78,76 @@
       <artifactId>dnsjava</artifactId>
       <version>2.1.8</version>
     </dependency>
+
+    <!-- test dependencies -->
+    <dependency>
+      <groupId>org.jenkins-ci.plugins.workflow</groupId>
+      <artifactId>workflow-durable-task-step</artifactId>
+      <version>${workflow.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins.workflow</groupId>
+      <artifactId>workflow-cps</artifactId>
+      <version>${workflow.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins.workflow</groupId>
+      <artifactId>workflow-job</artifactId>
+      <version>${workflow.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins.workflow</groupId>
+      <artifactId>workflow-basic-steps</artifactId>
+      <version>2.7</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.tomakehurst</groupId>
+      <artifactId>wiremock</artifactId>
+      <version>2.17.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+          <id>report</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+            <environmentVariables>
+                <PROJECT_NAMESPACE>test</PROJECT_NAMESPACE>
+                <OSIO_USERS_URL>http://localhost:8080/api/users</OSIO_USERS_URL>
+            </environmentVariables>
+        </configuration>
+    </plugin>
+    </plugins>
+  </build>
 
   <developers>
     <developer>
-      <id>msrb</id>
+      <id>michal</id>
       <name>Michal Srb</name>
       <email>michal@redhat.com</email>
     </developer>
@@ -90,16 +155,16 @@
 
   <licenses>
     <license>
-      <name>Apache-2.0</name>
+      <name>Apache 2.0</name>
       <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
 
   <scm>
-    <connection>scm:git:ssh://github.com/jenkinsci/MYPLUGINNAME.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/jenkinsci/MYPLUGINNAME.git</developerConnection>
-    <url>https://github.com/jenkinsci/MYPLUGINNAME</url>
+    <connection>scm:git:ssh://github.com/fabric8-analytics/fabric8-analytics-jenkins-plugin.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/fabric8-analytics/fabric8-analytics-jenkins-plugin.git</developerConnection>
+    <url>https://github.com/fabric8-analytics/fabric8-analytics-jenkins-plugin</url>
   </scm>
 
   <repositories>
