@@ -6,3 +6,5 @@ set -ex
 
 mvn clean verify
 
+ls -1
+tree
