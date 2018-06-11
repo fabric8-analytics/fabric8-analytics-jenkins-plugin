@@ -27,3 +27,8 @@ echo("The results will be available at " + response.analysisUrl)
 
 ### Testing
 
+Run the unit tests by the following command:
+
+```
+mvn clean verify
+```
