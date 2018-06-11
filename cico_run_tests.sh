@@ -6,5 +6,5 @@ set -ex
 
 mvn clean verify
 
-cd target/site
+cd target/site/jacoco
 ls -1
