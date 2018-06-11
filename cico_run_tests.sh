@@ -6,5 +6,7 @@ set -ex
 
 mvn clean verify
 
+echo "Code coverage report BEGIN"
 cd target/site/jacoco
-ls -1
+cat jacoco.csv
+echo "Code coverage report END"
