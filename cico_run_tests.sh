@@ -6,5 +6,5 @@ set -ex
 
 mvn clean verify
 
+cd target
 ls -1
-tree
