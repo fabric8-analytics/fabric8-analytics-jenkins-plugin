@@ -2,8 +2,8 @@
 
 load_jenkins_vars() {
     if [ -e "jenkins-env" ]; then
-        cat jenkins-env \
-          | grep -E "(JENKINS_URL|GIT_BRANCH|GIT_COMMIT|BUILD_NUMBER|ghprbSourceBranch|ghprbActualCommit|BUILD_URL|ghprbPullId)=" \
+        <jenkins-env \
+          grep -E "(JENKINS_URL|GIT_BRANCH|GIT_COMMIT|BUILD_NUMBER|ghprbSourceBranch|ghprbActualCommit|BUILD_URL|ghprbPullId)=" \
           | sed 's/^/export /g' \
           > ~/.jenkins-env
         source ~/.jenkins-env
