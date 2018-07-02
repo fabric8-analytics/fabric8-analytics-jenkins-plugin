@@ -41,6 +41,7 @@ import hudson.model.TaskListener;
 public final class BayesianAnalysisStep extends Step {
 
     private String url;
+    private String gitUrl;
 
     @DataBoundConstructor
     public BayesianAnalysisStep() {
@@ -53,6 +54,15 @@ public final class BayesianAnalysisStep extends Step {
 
     public String getUrl() {
         return url;
+    }
+    
+    @DataBoundSetter
+    public void setGitUrl(String gitUrl) {
+        this.gitUrl = gitUrl;
+    }
+
+    public String getGitUrl() {
+        return gitUrl;
     }
 
     @Override
@@ -90,7 +100,8 @@ public final class BayesianAnalysisStep extends Step {
 
             // TODO: refactor
             String url = (step.getUrl() != null) ? step.getUrl() : Bayesian.getDefaultUrl();
-            Bayesian bayesian = new Bayesian(url);
+            String girUtl = (step.getGitUrl() != null) ? step.getGitUrl() : "";
+            Bayesian bayesian = new Bayesian(url,girUtl);
 
             BayesianStepResponse response = null;
             try {
