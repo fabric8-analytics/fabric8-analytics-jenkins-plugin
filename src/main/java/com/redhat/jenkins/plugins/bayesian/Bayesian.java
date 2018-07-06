@@ -53,12 +53,13 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
     private static final String DEFAULT_OSIO_USERS_URL = "https://api.openshift.io/api/users";
     private static final String DEFAULT_OSIO_USERS_FILTER = "username";
     private String url;
+    private String gitUrl;
 
     public Bayesian() throws URISyntaxException {
-        this(DEFAULT_BAYESIAN_URL);
+        this(DEFAULT_BAYESIAN_URL, "");
     }
 
-    public Bayesian(String url) throws URISyntaxException {
+    public Bayesian(String url, String gitUrl) throws URISyntaxException {
         URI uri = new URI(url);
         String host = uri.getHost();
         if (host.indexOf('.') == -1) {
@@ -75,6 +76,7 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
             cnames = null;
         }
         this.url = uri.toString();
+        this.gitUrl = gitUrl;
     }
 
     public BayesianStepResponse submitStackForAnalysis(Collection<FilePath> manifests) throws BayesianException {
@@ -104,6 +106,7 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
         httpPost.setEntity(multipart);
         httpPost.setHeader("Authorization", "Bearer " + getAuthToken());
         httpPost.setHeader("UserEmail", getEmail());
+        httpPost.setHeader("ScanRepoUrl", getGitUrl());
 
         BayesianResponse responseObj = null;
         Gson gson;
@@ -205,6 +208,14 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
 
     public void setUrl(String url) {
         this.url = url;
+    }
+    
+    public String getGitUrl() {
+        return gitUrl;
+    }
+
+    public void setGitUrl(String gitUrl) {
+        this.gitUrl = gitUrl;
     }
 
     public static String getDefaultUrl() {
