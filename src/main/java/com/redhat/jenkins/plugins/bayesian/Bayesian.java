@@ -106,7 +106,7 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
         httpPost.setEntity(multipart);
         httpPost.setHeader("Authorization", "Bearer " + getAuthToken());
         httpPost.setHeader("UserEmail", getEmail());
-        httpPost.setHeader("scanRepoUrl", getGitUrl());
+        httpPost.setHeader("ScanRepoUrl", getGitUrl());
 
         BayesianResponse responseObj = null;
         Gson gson;
