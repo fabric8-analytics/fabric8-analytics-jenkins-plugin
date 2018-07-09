@@ -21,7 +21,7 @@ are supported at the moment.
 Simply add another step to your pipeline:
 
 ```
-def response = bayesianAnalysis url: 'https://<fabric8-analytics-recommender-hostname>'
+def response = bayesianAnalysis url: 'https://<fabric8-analytics-recommender-hostname>', gitUrl: <git repo URL>
 echo("The results will be available at " + response.analysisUrl)
 ```
 
