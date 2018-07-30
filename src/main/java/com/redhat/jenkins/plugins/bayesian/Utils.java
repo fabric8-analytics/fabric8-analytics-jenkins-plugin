@@ -17,6 +17,7 @@ package com.redhat.jenkins.plugins.bayesian;
  */
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import hudson.FilePath;
@@ -28,6 +29,14 @@ import hudson.FilePath;
         {
             add("package.json");
             add("npm-shrinkwrap.json");
+        }
+    };
+    
+    @SuppressWarnings("serial")
+    private static List<String> knownDependencies = new ArrayList<String>() {
+        {
+            add("direct-dependencies.txt");
+            add("transitive-dependencies.txt");
         }
     };
 
@@ -72,9 +81,15 @@ import hudson.FilePath;
 
         // Python
         List<FilePath> pythonManifests = findManifestsFromList(workspace, knownPythonManifests);
-        manifests.addAll(pythonManifests);
+        manifests.addAll(pythonManifests);       
 
         return manifests;
+    }
+    
+    public static List<FilePath> findDependencies(FilePath workspace) {
+     // Dependencies
+        List<FilePath> dependencies = findManifestsFromList(workspace, knownDependencies);
+        return dependencies;
     }
 
     private static List<FilePath> findManifestsFromList(FilePath workspace, List<String> manifests) {

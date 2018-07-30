@@ -51,6 +51,7 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
 
     private static final String DEFAULT_BAYESIAN_URL = "https://recommender.api.openshift.io/";
     private static final String DEFAULT_OSIO_USERS_URL = "https://api.openshift.io/api/users";
+    private static final String DEFAULT_OSIO_CODEBASE_URL = "https://api.openshift.io/api/search/codebases";
     private static final String DEFAULT_OSIO_USERS_FILTER = "username";
     private String url;
     private String gitUrl;
@@ -79,7 +80,7 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
         this.gitUrl = gitUrl;
     }
 
-    public BayesianStepResponse submitStackForAnalysis(Collection<FilePath> manifests) throws BayesianException {
+    public BayesianStepResponse submitStackForAnalysis(Collection<FilePath> manifests, Collection<FilePath> deps) throws BayesianException {
         String stackAnalysesUrl = getApiUrl() + "/stack-analyses";
         HttpPost httpPost = new HttpPost(stackAnalysesUrl);
 
@@ -101,12 +102,27 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
                 content = null;
             }
         }
+        for (FilePath dep : deps) {
+            byte[] content = null;
+            try (InputStream in = dep.read()) {
+                content = ByteStreams.toByteArray(in);
+                builder.addBinaryBody("dependencyFile[]", content, ContentType.DEFAULT_BINARY, dep.getName());
+            } catch (IOException | InterruptedException e) {
+                throw new BayesianException(e);
+            } finally {
+                content = null;
+            }
+        }
         HttpEntity multipart = builder.build();
         builder = null;
         httpPost.setEntity(multipart);
         httpPost.setHeader("Authorization", "Bearer " + getAuthToken());
         httpPost.setHeader("UserEmail", getEmail());
-        httpPost.setHeader("ScanRepoUrl", getGitUrl());
+
+        boolean scanEnabled = isScanEnabled();
+        if(scanEnabled) {
+            httpPost.setHeader("ScanRepoUrl", getGitUrl());
+        }
 
         BayesianResponse responseObj = null;
         Gson gson;
@@ -136,6 +152,71 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
             multipart = null;
             gson = null;
         }
+    }
+    
+    public boolean isScanEnabled() throws BayesianException {
+        boolean flag = false;
+        String url = getOSIOCodebaseUrl();
+        Gson gson;
+        Codebase responseObj;
+        InputStream is = null;
+        BufferedReader br = null;
+
+        HttpGet httpGet = new HttpGet(url);
+        try (CloseableHttpClient client = HttpClients.createDefault();
+                CloseableHttpResponse response = client.execute(httpGet)) {
+
+                HttpEntity entity = response.getEntity();
+                is = entity.getContent();
+                StringBuilder sb = new StringBuilder();
+                String line;
+                br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+
+                gson = new GsonBuilder().create();
+                String jsonStr = sb.toString().replace("cve-scan", "cvescan");
+                responseObj = gson.fromJson(jsonStr, Codebase.class);
+
+                if(responseObj.getData() == null ||
+                    responseObj.getData().isEmpty() ||
+                    responseObj.getData().get(0) == null ||
+                    responseObj.getData().get(0).getAttributes() == null
+                    ) {
+
+                        return false;
+                }
+                else {
+                    for(int count=0; count < responseObj.getData().size(); count++) {
+                        if(responseObj.getData().get(0).getAttributes().getCveScan().equals("true")) {
+                            flag=true;
+                            break;
+                        }
+                    }
+                }
+                
+        } catch (IOException e) {
+            throw new BayesianException("Bayesian error", e);
+        } finally {
+            responseObj = null;
+            httpGet = null;
+            gson = null;
+            try {
+              if (is != null) {
+                is.close();
+              }
+              
+              if (br != null) {
+                br.close();
+              }
+              
+            }catch (IOException e) {
+                throw new BayesianException("Bayesian error", e);
+            }
+        }
+        return flag;
     }
 
     public String getApiUrl() {
@@ -192,6 +273,12 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
             throw new BayesianException("Bayesian error", e);
         }
     }
+    
+    public String getOSIOCodebaseUrl() {
+        String codebaseUrl = DEFAULT_OSIO_CODEBASE_URL + "?url=";
+        String gitUrl = getGitUrl().replace("git@github.com:", "https://github.com/");
+        return codebaseUrl+""+gitUrl;
+    }
 
     public String getOSIOUserUrl() {
         String filterData = getFilteringData();        
@@ -211,7 +298,7 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
     }
     
     public String getGitUrl() {
-        return gitUrl;
+       return gitUrl;
     }
 
     public void setGitUrl(String gitUrl) {
