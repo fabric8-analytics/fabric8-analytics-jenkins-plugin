@@ -90,12 +90,20 @@ public final class BayesianAnalysisStep extends Step {
             PrintStream logger = getContext().get(TaskListener.class).getLogger();
 
             List<FilePath> manifests = Utils.findManifests(getContext().get(FilePath.class));
+            List<FilePath> deps = Utils.findDependencies(getContext().get(FilePath.class));
 
             BayesianStepResponse emptyResponse = BayesianStepResponse.emptyResposnse();
 
             if (manifests.isEmpty()) {
                 logger.println("No supported manifest files found, skipping.");
                 return emptyResponse;
+            }
+            
+            if (deps.isEmpty()) {
+                logger.println("No direct or transitive dependencies found.");
+            }
+            else {
+                logger.println("Found dependencies.");
             }
 
             // TODO: refactor
@@ -107,7 +115,7 @@ public final class BayesianAnalysisStep extends Step {
             try {
                 logger.println("Running Bayesian stack analysis...");
                 logger.println("Bayesian API URL is " + bayesian.getApiUrl());
-                response = bayesian.submitStackForAnalysis(manifests);
+                response = bayesian.submitStackForAnalysis(manifests,deps);
             } catch (Throwable e) {
                 // intentionally not failing the build here
                 StringWriter sw = new StringWriter();
