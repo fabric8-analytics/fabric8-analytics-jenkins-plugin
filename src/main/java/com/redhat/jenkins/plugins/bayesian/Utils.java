@@ -81,7 +81,7 @@ import hudson.FilePath;
 
         // Python
         List<FilePath> pythonManifests = findManifestsFromList(workspace, knownPythonManifests);
-        manifests.addAll(pythonManifests);       
+        manifests.addAll(pythonManifests);
 
         return manifests;
     }
