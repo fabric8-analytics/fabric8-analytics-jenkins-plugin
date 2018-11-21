@@ -42,6 +42,7 @@ public final class BayesianAnalysisStep extends Step {
 
     private String url;
     private String gitUrl;
+    private String ecosystem;
 
     @DataBoundConstructor
     public BayesianAnalysisStep() {
@@ -63,6 +64,15 @@ public final class BayesianAnalysisStep extends Step {
 
     public String getGitUrl() {
         return gitUrl;
+    }
+
+    @DataBoundSetter
+    public void setEcosystem(String ecosystem) {
+        this.ecosystem = ecosystem;
+    }
+
+    public String getEcosystem() {
+        return ecosystem;
     }
 
     @Override
@@ -109,12 +119,13 @@ public final class BayesianAnalysisStep extends Step {
             // TODO: refactor
             String url = (step.getUrl() != null) ? step.getUrl() : Bayesian.getDefaultUrl();
             String girUtl = (step.getGitUrl() != null) ? step.getGitUrl() : "";
-            Bayesian bayesian = new Bayesian(url,girUtl);
+            Bayesian bayesian = new Bayesian(url,girUtl,step.getEcosystem());
 
             BayesianStepResponse response = null;
             try {
                 logger.println("Running Bayesian stack analysis...");
                 logger.println("Bayesian API URL is " + bayesian.getApiUrl());
+                logger.println("Bayesian Ecosystem is " + bayesian.getEcosystem());
                 response = bayesian.submitStackForAnalysis(manifests,deps);
             } catch (Throwable e) {
                 // intentionally not failing the build here
