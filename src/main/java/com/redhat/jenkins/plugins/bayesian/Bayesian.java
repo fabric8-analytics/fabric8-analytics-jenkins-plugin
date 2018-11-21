@@ -55,12 +55,13 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
     private static final String DEFAULT_OSIO_USERS_FILTER = "username";
     private String url;
     private String gitUrl;
+    private String ecosystem;
 
     public Bayesian() throws URISyntaxException {
-        this(DEFAULT_BAYESIAN_URL, "");
+        this(DEFAULT_BAYESIAN_URL, "", "");
     }
 
-    public Bayesian(String url, String gitUrl) throws URISyntaxException {
+    public Bayesian(String url, String gitUrl, String ecosystem) throws URISyntaxException {
         URI uri = new URI(url);
         String host = uri.getHost();
         if (host.indexOf('.') == -1) {
@@ -78,6 +79,7 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
         }
         this.url = uri.toString();
         this.gitUrl = gitUrl;
+        this.ecosystem = ecosystem;
     }
 
     public BayesianStepResponse submitStackForAnalysis(Collection<FilePath> manifests, Collection<FilePath> deps) throws BayesianException {
@@ -119,11 +121,10 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
         httpPost.setHeader("Authorization", "Bearer " + getAuthToken());
         httpPost.setHeader("UserEmail", getEmail());
 
-        boolean scanEnabled = isScanEnabled();
-        if(scanEnabled) {
-            httpPost.setHeader("ScanRepoUrl", getGitUrl());
-        }
-
+        httpPost.setHeader("ScanRepoUrl", getGitUrl());
+        httpPost.setHeader("IsScanEnabled", isScanEnabled()? "true": "false");
+        httpPost.setHeader("ecosystem", getEcosystem());
+    
         BayesianResponse responseObj = null;
         Gson gson;
         try (CloseableHttpClient client = HttpClients.createDefault();
@@ -338,4 +339,9 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
         String nameSpace = System.getenv("PROJECT_NAMESPACE");
         return (nameSpace != null) ? nameSpace : "Data-Not-Found";
     }
+
+    public String getEcosystem() {
+        return ecosystem;
+    }
+
 }
