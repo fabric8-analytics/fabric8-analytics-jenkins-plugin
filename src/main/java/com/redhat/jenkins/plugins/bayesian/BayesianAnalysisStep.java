@@ -105,8 +105,7 @@ public final class BayesianAnalysisStep extends Step {
             BayesianStepResponse emptyResponse = BayesianStepResponse.emptyResposnse();
 
             if (manifests.isEmpty()) {
-                logger.println("No supported manifest files found, skipping.");
-                return emptyResponse;
+                logger.println("No supported manifest files found.");
             }
             
             if (deps.isEmpty()) {
@@ -114,7 +113,7 @@ public final class BayesianAnalysisStep extends Step {
             }
             else {
                 logger.println("Found dependencies.");
-            }
+            }            
 
             // TODO: refactor
             String url = (step.getUrl() != null) ? step.getUrl() : Bayesian.getDefaultUrl();
