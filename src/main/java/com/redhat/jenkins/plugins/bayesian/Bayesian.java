@@ -351,5 +351,4 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
     public String getEcosystem() {
         return ecosystem;
     }
-
 }
