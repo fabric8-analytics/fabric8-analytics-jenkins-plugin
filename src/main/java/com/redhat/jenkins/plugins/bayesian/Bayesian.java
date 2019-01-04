@@ -280,7 +280,15 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
     }
 
     public String getOSIOCodebaseUrl() {
-        String codebaseUrl = DEFAULT_OSIO_CODEBASE_URL + "?url=";
+    	String bayesianUrl = getUrl();
+    	String codebaseUrl = "";
+    	if(bayesianUrl.contains("prod-preview")) {
+    		codebaseUrl = "https://prod-preview.openshift.io/api/search/codebases?url=";
+    	}
+    	else {
+    		codebaseUrl = DEFAULT_OSIO_CODEBASE_URL + "?url=";
+    	}
+    	
         String gitUrl;
         if(getGitUrl().contains("git@github.com:")) {
             gitUrl = getGitUrl().replace("git@github.com:", "https://github.com/");
@@ -343,5 +351,4 @@ import com.redhat.jenkins.plugins.bayesian.BayesianResponse;
     public String getEcosystem() {
         return ecosystem;
     }
-
 }
