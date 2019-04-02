@@ -12,3 +12,4 @@ work/
 # VS Code
 .vscode
 
+.DS_Store
