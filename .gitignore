@@ -13,3 +13,5 @@ work/
 .vscode
 
 .DS_Store
+*.log
+*.err
